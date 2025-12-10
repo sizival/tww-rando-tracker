@@ -5,6 +5,7 @@ import {
   Route,
   Routes,
   useParams,
+  useSearchParams,
 } from 'react-router-dom';
 
 import Launcher from './launcher';
@@ -14,9 +15,24 @@ import '../css/main.scss';
 
 function RenderTracker({ loadProgress }) {
   const { permalink } = useParams();
+  const [searchParams] = useSearchParams();
+
+  // Extract Archipelago auto-connect parameters from URL
+  const apHost = searchParams.get('ap_host');
+  const apPort = searchParams.get('ap_port');
+  const apSlot = searchParams.get('ap_slot');
+
+  // Build the full server URL if host and port are provided
+  const apServerUrl = (apHost && apPort) ? `${apHost}:${apPort}` : null;
 
   return (
-    <Tracker permalink={permalink} loadProgress={loadProgress} />
+    <Tracker
+      permalink={permalink}
+      loadProgress={loadProgress}
+      apAutoConnect={!!apServerUrl && !!apSlot}
+      apServerUrl={apServerUrl}
+      apSlotName={apSlot}
+    />
   );
 }
 

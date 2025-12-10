@@ -26,12 +26,15 @@ class Tracker extends React.PureComponent {
   constructor(props) {
     super(props);
 
+    // Use props for initial AP connection values if provided (for auto-connect URLs)
+    const { apServerUrl, apSlotName } = props;
+
     this.state = {
       archipelagoConnectionOpen: false,
       archipelagoConnectionState: ConnectionState.DISCONNECTED,
       archipelagoConnectionError: null,
-      archipelagoServerUrl: 'multiworld.gg',
-      archipelagoSlotName: '',
+      archipelagoServerUrl: apServerUrl || 'multiworld.gg',
+      archipelagoSlotName: apSlotName || '',
       archipelagoPassword: '',
       chartListOpen: false,
       clearAllIncludesMail: true,
@@ -171,6 +174,13 @@ class Tracker extends React.PureComponent {
       saveData,
       spheres,
       trackerState,
+    }, () => {
+      // Auto-connect to Archipelago if URL parameters were provided
+      const { apAutoConnect, apServerUrl, apSlotName } = this.props;
+      if (apAutoConnect && apServerUrl && apSlotName) {
+        console.log(`Auto-connecting to Archipelago: ${apServerUrl} as ${apSlotName}`);
+        this.connectToArchipelago(apServerUrl, apSlotName, '');
+      }
     });
   }
 
@@ -893,8 +903,17 @@ class Tracker extends React.PureComponent {
 }
 
 Tracker.propTypes = {
+  apAutoConnect: PropTypes.bool,
+  apServerUrl: PropTypes.string,
+  apSlotName: PropTypes.string,
   loadProgress: PropTypes.bool.isRequired,
   permalink: PropTypes.string.isRequired,
+};
+
+Tracker.defaultProps = {
+  apAutoConnect: false,
+  apServerUrl: null,
+  apSlotName: null,
 };
 
 export default Tracker;
