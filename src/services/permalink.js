@@ -29,7 +29,7 @@ class Permalink {
     [this.OPTIONS.SWORD_MODE]: SWORD_MODE_OPTIONS,
   };
 
-  static DEFAULT_PERMALINK = 'eJwLtlAIyS8tykvMTc0rUSgzYnBkuPu5iKPBmEHAwZEBCBqAqJ9RAMSUYLJzrjf4KL/hf7YJAxjc8WjgcHlyWt3GVp5BwOMfE1CNA4MIgytjhQYXAGZ7Fso=';
+  static DEFAULT_PERMALINK = 'eJwLtlAIyS8tykvMTc0rUSgzYnBkmL8hgQEH4GBkEEDmT3EAkUfUTapmMzF4vGEEchxgSgGy6Qwx';
 
   static getVersion(binaryString) {
     const clonedString = binaryString.clone();
