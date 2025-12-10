@@ -719,7 +719,6 @@ class Tracker extends React.PureComponent {
     this.updateTrackerState(newTrackerState);
 
     console.log(`Archipelago: Auto-assigned entrance "${entranceName}" -> "${exitName}"`);
-    toast.info(`Entrance discovered: ${exitName}`, { autoClose: 2000 });
   }
 
   handleArchipelagoServerUrlChange(serverUrl) {
