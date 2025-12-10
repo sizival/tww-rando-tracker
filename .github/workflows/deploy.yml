@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [s8-tournament]  # Change this to your branch name
+    branches: [archipelago-autotrack]  # Change this to your branch name
   workflow_dispatch:  # Allows manual trigger from GitHub UI
 
 permissions:
