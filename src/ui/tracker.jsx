@@ -54,7 +54,7 @@ class Tracker extends React.PureComponent {
       rightClickToClearAll: true,
       trackNonProgressCharts: false,
       trackSpheres: false,
-      viewingEntrances: false,
+      viewingEntrances: true,
     };
 
     this.initialize();
@@ -90,6 +90,7 @@ class Tracker extends React.PureComponent {
     this.handleArchipelagoClear = this.handleArchipelagoClear.bind(this);
     this.handleArchipelagoItem = this.handleArchipelagoItem.bind(this);
     this.handleArchipelagoLocation = this.handleArchipelagoLocation.bind(this);
+    this.handleArchipelagoEntranceDiscovered = this.handleArchipelagoEntranceDiscovered.bind(this);
     this.handleArchipelagoServerUrlChange = this.handleArchipelagoServerUrlChange.bind(this);
     this.handleArchipelagoSlotNameChange = this.handleArchipelagoSlotNameChange.bind(this);
     this.handleArchipelagoPasswordChange = this.handleArchipelagoPasswordChange.bind(this);
@@ -100,6 +101,7 @@ class Tracker extends React.PureComponent {
     archipelagoClient.onClear = this.handleArchipelagoClear;
     archipelagoClient.onItem = this.handleArchipelagoItem;
     archipelagoClient.onLocation = this.handleArchipelagoLocation;
+    archipelagoClient.onEntranceDiscovered = this.handleArchipelagoEntranceDiscovered;
 
     // Track pending state for rapid-fire AP updates (React setState is async)
     this.pendingTrackerState = null;
@@ -677,6 +679,37 @@ class Tracker extends React.PureComponent {
 
       console.log(`Archipelago: Checked location ${generalLocation} - ${detailedLocation}`);
     }
+  }
+
+  handleArchipelagoEntranceDiscovered(entranceName, exitName) {
+    // Auto-assign entrance when player visits a stage
+    // The entranceName is the "macro" name like "Dungeon Entrance on Dragon Roost Island"
+    // The exitName is the "internal" name like "Dragon Roost Cavern"
+
+    // Use pending state to handle rapid-fire updates (React setState is async)
+    const trackerState = this.pendingTrackerState || this.state.trackerState;
+
+    if (!trackerState) {
+      return;
+    }
+
+    // Check if this entrance is already assigned
+    if (trackerState.isEntranceChecked(entranceName)) {
+      console.log(`Archipelago: Entrance "${entranceName}" already assigned`);
+      return;
+    }
+
+    // Map the AP exit name to the tracker's internal name
+    // The exit names from AP should match the internalName in our entrance data
+    const newTrackerState = trackerState.setExitForEntrance(entranceName, exitName);
+
+    // Store pending state for rapid-fire updates (React setState is async)
+    this.pendingTrackerState = newTrackerState;
+    this.scheduleClearPendingState();
+    this.updateTrackerState(newTrackerState);
+
+    console.log(`Archipelago: Auto-assigned entrance "${entranceName}" -> "${exitName}"`);
+    toast.info(`Entrance discovered: ${exitName}`, { autoClose: 2000 });
   }
 
   handleArchipelagoServerUrlChange(serverUrl) {

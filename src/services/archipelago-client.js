@@ -9,6 +9,8 @@
 
 import _ from 'lodash';
 
+import { getExitNameFromStageName, getTrackerEntranceName } from './archipelago-entrance-mapping';
+
 // Connection states
 export const ConnectionState = {
   DISCONNECTED: 'disconnected',
@@ -48,6 +50,16 @@ class ArchipelagoClient {
     this.itemIdToName = {};
     this.locationIdToName = {};
 
+    // Entrance randomization data
+    // Maps AP entrance names to exit names (original from slot_data)
+    this.apEntranceMappings = {};
+    // Maps tracker entrance names to exit names (converted from slot_data)
+    this.entranceMappings = {};
+    // Maps exit names to tracker entrance names (inverted from entranceMappings)
+    this.exitToEntranceMappings = {};
+    // Data storage key for visited stages
+    this.visitedStagesKey = null;
+
     // Callbacks
     this.onStateChange = null;
     this.onError = null;
@@ -55,6 +67,8 @@ class ArchipelagoClient {
     this.onItem = null;
     this.onLocation = null;
     this.onBounced = null;
+    this.onEntranceDiscovered = null; // Called when an entrance->exit mapping is discovered
+    this.onVisitedStagesRetrieved = null; // Called when visited stages are retrieved from data storage
 
     // Item tracking
     this.itemIndex = 0;
@@ -163,6 +177,10 @@ class ArchipelagoClient {
     this.checkedLocations.clear();
     this.missingLocations.clear();
     this.itemIndex = 0;
+    this.apEntranceMappings = {};
+    this.entranceMappings = {};
+    this.exitToEntranceMappings = {};
+    this.visitedStagesKey = null;
   }
 
   _send(messages) {
@@ -292,13 +310,59 @@ class ArchipelagoClient {
     console.log('Archipelago: checkedLocations Set size:', this.checkedLocations.size);
     console.log('Archipelago: checkedLocations contents:', [...this.checkedLocations]);
 
+    // Store entrance mappings from slot_data
+    this._processEntranceMappings();
+
     this._setState(ConnectionState.SLOT_CONNECTED);
     this.itemIndex = 0;
+
+    // Request visited stages from data storage
+    this._requestVisitedStages();
 
     // Emit clear event so tracker can reset and apply settings
     if (this.onClear) {
       this.onClear(this.slotData, this.checkedLocations, this.missingLocations);
     }
+  }
+
+  _processEntranceMappings() {
+    // slot_data.entrances contains { apEntranceName: exitName } mappings
+    // where apEntranceName is like "Dungeon Entrance on Dragon Roost Island"
+    // and exitName is the internal name like "Dragon Roost Cavern"
+    const entrances = this.slotData.entrances || {};
+
+    // Store original AP mappings
+    this.apEntranceMappings = { ...entrances };
+
+    // Convert to tracker format: { trackerEntranceName: exitName }
+    this.entranceMappings = {};
+    Object.entries(entrances).forEach(([apEntranceName, exitName]) => {
+      const trackerEntranceName = getTrackerEntranceName(apEntranceName);
+      if (trackerEntranceName) {
+        this.entranceMappings[trackerEntranceName] = exitName;
+      } else {
+        console.log(`Archipelago: Unknown AP entrance name: "${apEntranceName}"`);
+      }
+    });
+
+    // Create inverted mapping (exitName -> trackerEntranceName)
+    this.exitToEntranceMappings = {};
+    Object.entries(this.entranceMappings).forEach(([trackerEntranceName, exitName]) => {
+      this.exitToEntranceMappings[exitName] = trackerEntranceName;
+    });
+
+    console.log('Archipelago: Loaded entrance mappings:', Object.keys(this.entranceMappings).length);
+    if (Object.keys(this.entranceMappings).length > 0) {
+      console.log('Archipelago: Entrance mappings sample:', Object.entries(this.entranceMappings).slice(0, 5));
+    }
+  }
+
+  _requestVisitedStages() {
+    // Data storage key format from ww-poptracker
+    this.visitedStagesKey = `tww_visited_stages_${this.playerNumber}`;
+    console.log('Archipelago: Requesting visited stages with key:', this.visitedStagesKey);
+
+    this.get([this.visitedStagesKey]);
   }
 
   _handleConnectionRefused(message) {
@@ -368,14 +432,74 @@ class ArchipelagoClient {
   }
 
   _handleBounced(message) {
+    // Check if this is a stage tracking message for our slot
+    const { slots, data } = message;
+
+    // Verify the message is for our slot
+    if (slots && slots.length === 1 && slots[0] === this.playerNumber && data) {
+      const stageName = data.tww_stage_name;
+      if (stageName) {
+        console.log('Archipelago: Received stage name via Bounced:', stageName);
+        this._processStageVisit(stageName);
+      }
+    }
+
     if (this.onBounced) {
       this.onBounced(message);
+    }
+  }
+
+  _processStageVisit(stageName) {
+    // Look up the exit name from the stage name
+    const exitName = getExitNameFromStageName(stageName);
+    if (!exitName) {
+      console.log('Archipelago: Unknown stage name:', stageName);
+      return;
+    }
+
+    // Look up which entrance leads to this exit
+    const entranceName = this.exitToEntranceMappings[exitName];
+    if (!entranceName) {
+      console.log(`Archipelago: No entrance mapping for exit "${exitName}" (stage: ${stageName})`);
+      return;
+    }
+
+    console.log(`Archipelago: Entrance discovered - "${entranceName}" -> "${exitName}"`);
+
+    // Emit entrance discovered event
+    if (this.onEntranceDiscovered) {
+      this.onEntranceDiscovered(entranceName, exitName);
     }
   }
 
   _handleRetrieved(message) {
     // Handle data storage retrieval
     console.log('Archipelago: Retrieved', message);
+
+    const { keys } = message;
+    if (!keys) return;
+
+    // Check if this is the visited stages response
+    if (this.visitedStagesKey && keys[this.visitedStagesKey] !== undefined) {
+      const visitedStages = keys[this.visitedStagesKey];
+      console.log('Archipelago: Received visited stages:', visitedStages);
+
+      if (visitedStages && typeof visitedStages === 'object') {
+        // visitedStages is a dictionary used as a set (keys are stage names, values are true)
+        const stageNames = Object.keys(visitedStages);
+        console.log('Archipelago: Processing', stageNames.length, 'previously visited stages');
+
+        // Process each visited stage to assign entrances
+        stageNames.forEach((stageName) => {
+          this._processStageVisit(stageName);
+        });
+
+        // Also emit callback for any additional handling
+        if (this.onVisitedStagesRetrieved) {
+          this.onVisitedStagesRetrieved(stageNames);
+        }
+      }
+    }
   }
 
   _handleSetReply(message) {
@@ -413,6 +537,26 @@ class ArchipelagoClient {
   // Get location name from ID
   getLocationName(locationId) {
     return this.locationIdToName[locationId] || `Unknown Location ${locationId}`;
+  }
+
+  // Get exit name for an entrance (from slot_data mappings)
+  getExitForEntrance(entranceName) {
+    return this.entranceMappings[entranceName] || null;
+  }
+
+  // Get entrance name for an exit (from slot_data mappings)
+  getEntranceForExit(exitName) {
+    return this.exitToEntranceMappings[exitName] || null;
+  }
+
+  // Check if entrance randomization data is available
+  hasEntranceMappings() {
+    return Object.keys(this.entranceMappings).length > 0;
+  }
+
+  // Get all entrance mappings
+  getAllEntranceMappings() {
+    return { ...this.entranceMappings };
   }
 }
 
