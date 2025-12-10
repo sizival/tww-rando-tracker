@@ -26,3 +26,26 @@ After the server starts, you can go to [localhost:8080](http://localhost:8080/) 
 ## Documentation
 
 Code documentation is available at [wooferzfg.me/tww-rando-tracker/docs](https://www.wooferzfg.me/tww-rando-tracker/docs).
+
+## Archipelago Auto-Connect
+
+You can create a URL that automatically connects the tracker to an Archipelago server by adding query parameters to the tracker URL.
+
+**URL Format:**
+```
+/#/tracker/new/:permalink?ap_host=HOST&ap_port=PORT&ap_slot=SLOTNAME
+```
+
+**Parameters:**
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `ap_host` | Yes | The Archipelago server hostname (e.g., `multiworld.gg`) |
+| `ap_port` | Yes | The server port number (e.g., `38281`) |
+| `ap_slot` | Yes | Your slot/player name |
+
+**Example:**
+```
+/#/tracker/new/eJwLtlAI...?ap_host=multiworld.gg&ap_port=38281&ap_slot=Player1
+```
+
+All three parameters are required for auto-connect to trigger. If any parameter is missing, the tracker will load normally without auto-connecting.
