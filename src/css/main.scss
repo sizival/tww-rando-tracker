@@ -784,6 +784,12 @@ button:hover:enabled {
     margin-right: 5px;
     margin-top: 5px;
     width: 250px;
+
+    &.archipelago-connected {
+      background: linear-gradient(#5cb85c, #4cae4c);
+      color: white;
+      border-color: #4cae4c;
+    }
   }
 }
 
@@ -859,5 +865,147 @@ button:hover:enabled {
     text-align: right;
     height: 25px;
     flex-grow: 1;
+  }
+}
+
+.archipelago-connection-window {
+  position: fixed;
+  background-color: white;
+  padding: 15px;
+  width: 400px;
+  user-select: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+
+  .archipelago-top-row {
+    display: flex;
+    margin-bottom: 15px;
+  }
+
+  .archipelago-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+  }
+
+  .close-button {
+    cursor: pointer;
+    text-align: right;
+    height: 25px;
+    flex-grow: 1;
+    color: #666;
+
+    &:hover {
+      color: #333;
+    }
+  }
+
+  .connection-status {
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    font-weight: bold;
+    text-align: center;
+
+    &.status-disconnected {
+      background-color: #e0e0e0;
+      color: #666;
+    }
+
+    &.status-connecting {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+
+    &.status-connected {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    &.status-error {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+  }
+
+  .archipelago-form {
+    margin-bottom: 15px;
+  }
+
+  .archipelago-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .archipelago-label {
+    width: 100px;
+    font-weight: bold;
+    color: #333;
+  }
+
+  .archipelago-input {
+    flex-grow: 1;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+
+    &:focus {
+      outline: none;
+      border-color: #3783da;
+      box-shadow: 0 0 3px rgba(55, 131, 218, 0.3);
+    }
+
+    &:disabled {
+      background-color: #f0f0f0;
+      color: #999;
+    }
+  }
+
+  .archipelago-button-row {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+  }
+
+  .archipelago-button {
+    padding: 10px 30px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background: linear-gradient(#4a90d9, #3783da);
+    color: white;
+
+    &:hover:enabled {
+      background: linear-gradient(#5a9fe9, #4793ea);
+    }
+
+    &:disabled {
+      background: linear-gradient(#b0b0b0, #a0a0a0);
+      cursor: not-allowed;
+    }
+
+    &.disconnect-button {
+      background: linear-gradient(#d9534f, #c9302c);
+
+      &:hover:enabled {
+        background: linear-gradient(#e9635f, #d9403c);
+      }
+    }
+  }
+
+  .archipelago-info {
+    font-size: 12px;
+    color: #666;
+    border-top: 1px solid #eee;
+    padding-top: 10px;
+
+    p {
+      margin: 5px 0;
+    }
   }
 }

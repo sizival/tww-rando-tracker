@@ -84,6 +84,13 @@ class TrackerState {
     return newState;
   }
 
+  setItemValue(itemName, value) {
+    const newState = this.#clone({ items: true });
+    _.set(newState.items, itemName, value);
+    newState.#updateBlueChuTotalIfNecessary(itemName);
+    return newState;
+  }
+
   getEntranceForExit(exitName) {
     return _.findKey(this.entrances, (curExitName) => curExitName === exitName);
   }

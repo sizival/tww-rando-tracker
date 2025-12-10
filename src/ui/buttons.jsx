@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
+import { ConnectionState } from '../services/archipelago-client';
 import LogicHelper from '../services/logic-helper';
 
 import Storage from './storage';
@@ -20,9 +21,12 @@ class Buttons extends React.PureComponent {
 
   render() {
     const {
+      archipelagoConnectionOpen,
+      archipelagoConnectionState,
       chartListOpen,
       settingsWindowOpen,
       onlyProgressLocations,
+      toggleArchipelagoConnection,
       toggleChartList,
       toggleSettingsWindow,
       toggleEntrances,
@@ -43,8 +47,30 @@ class Buttons extends React.PureComponent {
       || LogicHelper.anyProgressItemCharts()
     );
 
+    // Determine Archipelago button text and state
+    let archipelagoButtonText;
+    let archipelagoConnected = false;
+    if (archipelagoConnectionOpen) {
+      archipelagoButtonText = 'Close AP Connection';
+    } else if (archipelagoConnectionState === ConnectionState.SLOT_CONNECTED) {
+      archipelagoButtonText = 'AP Connected ✓';
+      archipelagoConnected = true;
+    } else if (archipelagoConnectionState === ConnectionState.CONNECTING
+      || archipelagoConnectionState === ConnectionState.CONNECTED) {
+      archipelagoButtonText = 'AP Connecting...';
+    } else {
+      archipelagoButtonText = 'Connect to AP';
+    }
+
     return (
       <div className="buttons">
+        <button
+          onClick={toggleArchipelagoConnection}
+          type="button"
+          className={archipelagoConnected ? 'archipelago-connected' : ''}
+        >
+          {archipelagoButtonText}
+        </button>
         <button
           onClick={toggleOnlyProgressLocations}
           type="button"
@@ -87,10 +113,13 @@ class Buttons extends React.PureComponent {
 }
 
 Buttons.propTypes = {
+  archipelagoConnectionOpen: PropTypes.bool.isRequired,
+  archipelagoConnectionState: PropTypes.string.isRequired,
   chartListOpen: PropTypes.bool.isRequired,
   onlyProgressLocations: PropTypes.bool.isRequired,
   saveData: PropTypes.string.isRequired,
   settingsWindowOpen: PropTypes.bool.isRequired,
+  toggleArchipelagoConnection: PropTypes.func.isRequired,
   toggleChartList: PropTypes.func.isRequired,
   toggleEntrances: PropTypes.func.isRequired,
   toggleOnlyProgressLocations: PropTypes.func.isRequired,
