@@ -613,8 +613,9 @@ class Tracker extends React.PureComponent {
     this.scheduleClearPendingState();
     this.updateTrackerState(newTrackerState);
 
-    // Log slot data for debugging
-    console.log('Archipelago slot_data:', slotData);
+    // Log slot data for debugging (redact entrances to reduce noise)
+    const { entrances, ...slotDataWithoutEntrances } = slotData;
+    console.log('Archipelago slot_data:', slotDataWithoutEntrances);
   }
 
   handleArchipelagoItem(index, itemId, itemName, playerNumber) {

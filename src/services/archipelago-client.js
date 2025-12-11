@@ -209,7 +209,15 @@ class ArchipelagoClient {
 
     messages.forEach((message) => {
       const { cmd } = message;
-      console.log('Archipelago: Received', cmd, message);
+
+      // Log message, but redact entrances from Connected to reduce noise
+      if (cmd === 'Connected' && message.slot_data?.entrances) {
+        const { entrances, ...slotDataWithoutEntrances } = message.slot_data;
+        const redactedMessage = { ...message, slot_data: slotDataWithoutEntrances };
+        console.log('Archipelago: Received', cmd, redactedMessage);
+      } else {
+        console.log('Archipelago: Received', cmd, message);
+      }
 
       switch (cmd) {
         case 'RoomInfo':
@@ -368,9 +376,6 @@ class ArchipelagoClient {
     });
 
     console.log('Archipelago: Loaded entrance mappings:', Object.keys(this.entranceMappings).length);
-    if (Object.keys(this.entranceMappings).length > 0) {
-      console.log('Archipelago: Entrance mappings sample:', Object.entries(this.entranceMappings).slice(0, 5));
-    }
   }
 
   _requestVisitedStages() {
