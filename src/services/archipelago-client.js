@@ -50,6 +50,9 @@ class ArchipelagoClient {
     this.itemIdToName = {};
     this.locationIdToName = {};
 
+    // Player info (slot -> { name, alias, game })
+    this.players = {};
+
     // Entrance randomization data
     // Maps AP entrance names to exit names (original from slot_data)
     this.apEntranceMappings = {};
@@ -307,6 +310,19 @@ class ArchipelagoClient {
     this.checkedLocations = new Set(message.checked_locations || []);
     this.missingLocations = new Set(message.missing_locations || []);
 
+    // Store player info for looking up names later
+    this.players = {};
+    if (message.players && Array.isArray(message.players)) {
+      message.players.forEach((player) => {
+        this.players[player.slot] = {
+          name: player.name,
+          alias: player.alias,
+          game: player.game,
+        };
+      });
+      console.log('Archipelago: Loaded player info for', Object.keys(this.players).length, 'players');
+    }
+
     console.log('Archipelago: checkedLocations Set size:', this.checkedLocations.size);
     console.log('Archipelago: checkedLocations contents:', [...this.checkedLocations]);
 
@@ -406,7 +422,17 @@ class ArchipelagoClient {
 
       const itemId = item.item;
       const itemName = this.itemIdToName[itemId] || `Unknown Item ${itemId}`;
-      const { player } = item;
+      const { player, location } = item;
+
+      // Get location name (location is from the finder's game, so we look up in their data)
+      const locationName = this.locationIdToName[location] || `Unknown Location ${location}`;
+
+      // Get finder's name
+      const finderInfo = this.players[player];
+      const finderName = finderInfo ? (finderInfo.alias || finderInfo.name) : `Player ${player}`;
+
+      // Log the item receipt
+      console.log(`Archipelago: Received "${itemName}" from "${locationName}" (found by ${finderName})`);
 
       if (this.onItem) {
         this.onItem(itemIdx, itemId, itemName, player);
@@ -415,6 +441,18 @@ class ArchipelagoClient {
   }
 
   _handleRoomUpdate(message) {
+    // Update player info if provided (when players join/leave)
+    if (message.players && Array.isArray(message.players)) {
+      message.players.forEach((player) => {
+        this.players[player.slot] = {
+          name: player.name,
+          alias: player.alias,
+          game: player.game,
+        };
+      });
+      console.log('Archipelago: Updated player info, now have', Object.keys(this.players).length, 'players');
+    }
+
     // Update checked locations if provided
     if (message.checked_locations) {
       message.checked_locations.forEach((locId) => {

@@ -12,11 +12,13 @@ permissions:
 
 concurrency:
   group: "pages"
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    # Skip if this push is from a PR merge (triggered by a PR event)
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push'
     permissions:
       pages: write
       id-token: write
