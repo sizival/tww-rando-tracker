@@ -2,7 +2,7 @@
 
 [![Build Status](https://github.com/sizival/tww-rando-tracker/workflows/CI/badge.svg)](https://github.com/sizival/tww-rando-tracker/actions)
 
-This is a tracker for [The Wind Waker Randomizer Archipelago](https://github.com/ArchipelagoMW/Archipelago/tree/main/worlds/tww). It's available at [sizival.github.io/tww-rando-tracker](https://www.sizival.github.io/tww-rando-tracker/).
+This is a tracker for [The Wind Waker Randomizer Archipelago](https://github.com/tanjo3/wwrando). It's available at [sizival.github.io/tww-rando-tracker](https://www.sizival.github.io/tww-rando-tracker/).
 
 ## Build Instructions
 

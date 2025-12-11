@@ -4,7 +4,8 @@
  * Maps Archipelago location IDs (from the Wind Waker AP world) to the
  * location format used in the tww-rando-tracker (generalLocation, detailedLocation).
  *
- * IDs sourced from the Wind Waker Archipelago world.
+ * IDs sourced from ww-poptracker location_mapping.lua
+ * Names matched to tww-rando-tracker's test-item-locations.json
  */
 
 // AP Location IDs for The Wind Waker
@@ -77,13 +78,13 @@ const LOCATION_MAPPING = {
   0x23803e: { generalLocation: 'Dragon Roost Cavern', detailedLocation: 'Rat Room Boarded Up Chest' },
   0x23803f: { generalLocation: 'Dragon Roost Cavern', detailedLocation: "Bird's Nest" },
   0x238040: { generalLocation: 'Dragon Roost Cavern', detailedLocation: 'Dark Room' },
-  0x238041: { generalLocation: 'Dragon Roost Cavern', detailedLocation: 'Tingle Statue Chest' },
+  0x238041: { generalLocation: 'Dragon Roost Cavern', detailedLocation: 'Tingle Chest in Hub Room' },
   0x238042: { generalLocation: 'Dragon Roost Cavern', detailedLocation: 'Pot on Upper Shelf in Pot Room' },
   0x238043: { generalLocation: 'Dragon Roost Cavern', detailedLocation: 'Pot Room Chest' },
   0x238044: { generalLocation: 'Dragon Roost Cavern', detailedLocation: 'Miniboss' },
   0x238045: { generalLocation: 'Dragon Roost Cavern', detailedLocation: 'Under Rope Bridge' },
-  0x238046: { generalLocation: 'Dragon Roost Cavern', detailedLocation: 'Big Key Chest' },
-  0x238047: { generalLocation: 'Dragon Roost Cavern', detailedLocation: 'Hub Room' },
+  0x238046: { generalLocation: 'Dragon Roost Cavern', detailedLocation: 'Tingle Statue Chest' },
+  0x238047: { generalLocation: 'Dragon Roost Cavern', detailedLocation: 'Big Key Chest' },
   0x238048: { generalLocation: 'Dragon Roost Cavern', detailedLocation: 'Boss Stairs Right Chest' },
   0x238049: { generalLocation: 'Dragon Roost Cavern', detailedLocation: 'Boss Stairs Left Chest' },
   0x23804a: { generalLocation: 'Dragon Roost Cavern', detailedLocation: 'Boss Stairs Right Pot' },
@@ -205,7 +206,7 @@ const LOCATION_MAPPING = {
   0x238099: { generalLocation: 'Wind Temple', detailedLocation: 'Big Key Chest' },
   0x23809a: { generalLocation: 'Wind Temple', detailedLocation: 'Chest In Many Cyclones Room' },
   0x23809b: { generalLocation: 'Wind Temple', detailedLocation: 'Behind Stone Head in Many Cyclones Room' },
-  0x23809c: { generalLocation: 'Wind Temple', detailedLocation: 'Chest In Middle of Hub Room' },
+  0x23809c: { generalLocation: 'Wind Temple', detailedLocation: 'Chest In Middle Of Hub Room' },
   0x23809d: { generalLocation: 'Wind Temple', detailedLocation: 'Spike Wall Room - First Chest' },
   0x23809e: { generalLocation: 'Wind Temple', detailedLocation: 'Spike Wall Room - Destroy All Cracked Floors' },
   0x23809f: { generalLocation: 'Wind Temple', detailedLocation: 'Wizzrobe Miniboss Room' },
@@ -450,4 +451,3 @@ export function getAllLocationIds() {
 }
 
 export default LOCATION_MAPPING;
-
