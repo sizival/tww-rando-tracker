@@ -1,8 +1,8 @@
 # TWW Randomizer Tracker
 
-[![Build Status](https://github.com/wooferzfg/tww-rando-tracker/workflows/CI/badge.svg)](https://github.com/wooferzfg/tww-rando-tracker/actions)
+[![Build Status](https://github.com/sizival/tww-rando-tracker/workflows/CI/badge.svg)](https://github.com/sizival/tww-rando-tracker/actions)
 
-This is a tracker for [The Wind Waker Randomizer](https://github.com/LagoLunatic/wwrando). It's available at [wooferzfg.me/tww-rando-tracker](https://www.wooferzfg.me/tww-rando-tracker/).
+This is a tracker for [The Wind Waker Randomizer Archipelago](https://github.com/ArchipelagoMW/Archipelago/tree/main/worlds/tww). It's available at [sizival.github.io/tww-rando-tracker](https://www.sizival.github.io/tww-rando-tracker/).
 
 ## Build Instructions
 
@@ -22,10 +22,6 @@ You can then build and serve the tracker application:
 npm start
 ```
 After the server starts, you can go to [localhost:8080](http://localhost:8080/) to open the tracker.
-
-## Documentation
-
-Code documentation is available at [wooferzfg.me/tww-rando-tracker/docs](https://www.wooferzfg.me/tww-rando-tracker/docs).
 
 ## Archipelago Auto-Connect
 

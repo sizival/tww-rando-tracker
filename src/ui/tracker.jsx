@@ -58,6 +58,7 @@ class Tracker extends React.PureComponent {
       trackNonProgressCharts: false,
       trackSpheres: false,
       viewingEntrances: true,
+      betaBannerDismissed: false,
     };
 
     this.initialize();
@@ -97,6 +98,7 @@ class Tracker extends React.PureComponent {
     this.handleArchipelagoServerUrlChange = this.handleArchipelagoServerUrlChange.bind(this);
     this.handleArchipelagoSlotNameChange = this.handleArchipelagoSlotNameChange.bind(this);
     this.handleArchipelagoPasswordChange = this.handleArchipelagoPasswordChange.bind(this);
+    this.dismissBetaBanner = this.dismissBetaBanner.bind(this);
 
     // Set up Archipelago callbacks
     archipelagoClient.onStateChange = this.handleArchipelagoStateChange;
@@ -733,6 +735,10 @@ class Tracker extends React.PureComponent {
     this.setState({ archipelagoPassword: password });
   }
 
+  dismissBetaBanner() {
+    this.setState({ betaBannerDismissed: true });
+  }
+
   render() {
     const {
       archipelagoConnectionOpen,
@@ -741,6 +747,7 @@ class Tracker extends React.PureComponent {
       archipelagoServerUrl,
       archipelagoSlotName,
       archipelagoPassword,
+      betaBannerDismissed,
       chartListOpen,
       clearAllIncludesMail,
       colors,
@@ -887,6 +894,21 @@ class Tracker extends React.PureComponent {
               slotName={archipelagoSlotName}
               toggleArchipelagoConnection={this.toggleArchipelagoConnection}
             />
+          )}
+          {!betaBannerDismissed && (
+            <div className="beta-warning-banner">
+              <span className="beta-warning-text">
+                ⚠️ This tracker is in beta and is not guaranteed to be 100% reliable
+              </span>
+              <button
+                className="beta-warning-close"
+                onClick={this.dismissBetaBanner}
+                type="button"
+                aria-label="Dismiss warning"
+              >
+                ✕
+              </button>
+            </div>
           )}
         </div>
       );

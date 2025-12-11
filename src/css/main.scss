@@ -1009,3 +1009,37 @@ button:hover:enabled {
     }
   }
 }
+
+.beta-warning-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffcccc;
+  color: #000000;
+  text-align: center;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 10px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+  .beta-warning-text {
+    flex-grow: 1;
+  }
+
+  .beta-warning-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #666;
+    padding: 0 0 0 15px;
+    min-width: auto;
+    line-height: 1;
+
+    &:hover {
+      color: #000;
+    }
+  }
+}

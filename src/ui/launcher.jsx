@@ -47,7 +47,10 @@ export default class Launcher extends React.PureComponent {
   constructor() {
     super();
 
-    this.state = { isLoading: true };
+    this.state = {
+      isLoading: true,
+      betaBannerDismissed: false,
+    };
 
     this.initialize();
 
@@ -55,6 +58,7 @@ export default class Launcher extends React.PureComponent {
     this.loadFromFile = this.loadFromFile.bind(this);
     this.loadFromSave = this.loadFromSave.bind(this);
     this.setOptionValue = this.setOptionValue.bind(this);
+    this.dismissBetaBanner = this.dismissBetaBanner.bind(this);
   }
 
   componentDidMount() {
@@ -86,6 +90,10 @@ export default class Launcher extends React.PureComponent {
     _.set(options, optionName, newValue);
 
     this.updateOptions(options);
+  }
+
+  dismissBetaBanner() {
+    this.setState({ betaBannerDismissed: true });
   }
 
   async initialize() {
@@ -433,7 +441,7 @@ export default class Launcher extends React.PureComponent {
   }
 
   render() {
-    const { isLoading } = this.state;
+    const { isLoading, betaBannerDismissed } = this.state;
 
     let content;
 
@@ -453,6 +461,21 @@ export default class Launcher extends React.PureComponent {
               draggable={false}
             />
           </div>
+          {!betaBannerDismissed && (
+            <div className="beta-warning-banner">
+              <span className="beta-warning-text">
+                ⚠️ This tracker is in beta and is not guaranteed to be 100% reliable
+              </span>
+              <button
+                className="beta-warning-close"
+                onClick={this.dismissBetaBanner}
+                type="button"
+                aria-label="Dismiss warning"
+              >
+                ✕
+              </button>
+            </div>
+          )}
           <div className="settings">
             {this.permalinkContainer()}
             {this.progressItemLocationsTable()}
@@ -462,8 +485,8 @@ export default class Launcher extends React.PureComponent {
             {this.launchButtonContainer()}
           </div>
           <div className="attribution">
-            <span>Maintained by wooferzfg • Original Tracker by BigDunka • </span>
-            <a href={`https://github.com/wooferzfg/tww-rando-tracker/commit/${COMMIT_HASH}`} target="_blank" rel="noreferrer">
+            <span>Maintained by sizival • Original Tracker by wooferzfg & BigDunka • </span>
+            <a href={`https://github.com/sizival/tww-rando-tracker/commit/${COMMIT_HASH}`} target="_blank" rel="noreferrer">
               Version:
               {' '}
               {COMMIT_HASH}
