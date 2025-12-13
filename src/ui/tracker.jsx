@@ -613,7 +613,7 @@ class Tracker extends React.PureComponent {
     const sailCount = newTrackerState.getItemValue("Boat's Sail");
     if (sailCount === 0) {
       newTrackerState = newTrackerState.incrementItem("Boat's Sail");
-      console.log("Archipelago: Granted starting Boat's Sail");
+      console.log("Autotracked guaranteed starting item: Boat's Sail");
     }
 
     // Store pending state for rapid-fire updates (React setState is async)
