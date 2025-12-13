@@ -608,6 +608,14 @@ class Tracker extends React.PureComponent {
     });
     console.log(`Archipelago: Marked ${locationsMarked} new locations as checked`);
 
+    // Grant the sail since it's always a starting item in WWR
+    // Archipelago doesn't send starting items, so we add it manually
+    const sailCount = newTrackerState.getItemValue("Boat's Sail");
+    if (sailCount === 0) {
+      newTrackerState = newTrackerState.incrementItem("Boat's Sail");
+      console.log("Archipelago: Granted starting Boat's Sail");
+    }
+
     // Store pending state for rapid-fire updates (React setState is async)
     this.pendingTrackerState = newTrackerState;
     this.scheduleClearPendingState();
