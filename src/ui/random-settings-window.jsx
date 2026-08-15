@@ -213,6 +213,22 @@ class RandomSettingsWindow extends React.PureComponent {
             labelText: 'Sunken Treasure (From Treasure Charts)',
             optionName: Permalink.OPTIONS.PROGRESSION_TREASURE_CHARTS,
           }),
+          this.progressionInput({
+            labelText: 'Dungeon Rupees',
+            optionName: Permalink.OPTIONS.PROGRESSION_RUPEE_DUNGEON,
+          }),
+          this.progressionInput({
+            labelText: 'Overworld Rupees',
+            optionName: Permalink.OPTIONS.PROGRESSION_RUPEE_OVERWORLD,
+          }),
+          this.progressionInput({
+            labelText: 'Blue ChuChu Drops',
+            optionName: Permalink.OPTIONS.PROGRESSION_BLUE_CHU_JELLIES,
+          }),
+          this.progressionInput({
+            labelText: 'Orca Minigame',
+            optionName: Permalink.OPTIONS.PROGRESSION_ORCA_MINIGAME,
+          }),
         ]}
       />
     );
@@ -276,10 +292,6 @@ class RandomSettingsWindow extends React.PureComponent {
             optionName: Permalink.OPTIONS.SWORD_MODE,
             isDisabled: false,
           }),
-          this.toggleInput({
-            labelText: 'Key-Lunacy',
-            optionName: Permalink.OPTIONS.KEYLUNACY,
-          }),
           this.dropdownInput({
             labelText: 'Triforce Shards to Start With',
             optionName: Permalink.OPTIONS.NUM_STARTING_TRIFORCE_SHARDS,
@@ -298,9 +310,39 @@ class RandomSettingsWindow extends React.PureComponent {
             optionName: Permalink.OPTIONS.NUM_REQUIRED_BOSSES,
             isDisabled: !this.getOptionValue(Permalink.OPTIONS.REQUIRED_BOSSES),
           }),
+          this.dropdownInput({
+            labelText: 'Small Keys Shuffle',
+            optionName: Permalink.OPTIONS.SHUFFLE_SMALL_KEYS,
+            isDisabled: false,
+          }),
+          this.dropdownInput({
+            labelText: 'Big Keys Shuffle',
+            optionName: Permalink.OPTIONS.SHUFFLE_BIG_KEYS,
+            isDisabled: false,
+          }),
+          this.toggleInput({
+            labelText: 'Boss Soul Shuffle',
+            optionName: Permalink.OPTIONS.BOSS_SOUL_SHUFFLE,
+          }),
           this.toggleInput({
             labelText: 'Skip Boss Rematches',
             optionName: Permalink.OPTIONS.SKIP_REMATCH_BOSSES,
+          }),
+          this.toggleInput({
+            labelText: 'All Magic Meters Are Double',
+            optionName: Permalink.OPTIONS.ALWAYS_DOUBLE_MAGIC,
+          }),
+          this.toggleInput({
+            labelText: 'Open DRC',
+            optionName: Permalink.OPTIONS.OPEN_DRC,
+          }),
+          this.toggleInput({
+            labelText: 'Skip TotG Statues',
+            optionName: Permalink.OPTIONS.TOTG_TABLET_FROM_START,
+          }),
+          this.toggleInput({
+            labelText: 'Sunlight Arrows',
+            optionName: Permalink.OPTIONS.SUNLIGHT_ARROWS,
           }),
         ]}
       />

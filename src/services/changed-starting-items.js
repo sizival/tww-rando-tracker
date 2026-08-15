@@ -18,7 +18,7 @@ class ChangedStartingItems {
     let newOptions;
 
     if (this.changedItems) {
-      newTrackerState = trackerState._clone({ items: true });
+      newTrackerState = trackerState.cloneWithItems();
       const startingGear = Settings.getStartingGear();
 
       const newChangedStartingItems = _.pickBy(

@@ -342,6 +342,10 @@ class TrackerState {
     return newState;
   }
 
+  cloneWithItems() {
+    return this.#clone({ items: true })
+  }
+
   #toggleLocationCheckedUpdate(generalLocation, detailedLocation) {
     const isChecked = this.isLocationChecked(generalLocation, detailedLocation);
     _.set(this.locationsChecked, [generalLocation, detailedLocation], !isChecked);
