@@ -23,10 +23,14 @@ class Buttons extends React.PureComponent {
       chartListOpen,
       isStartingItemMode,
       onlyProgressLocations,
+      randomSettingsWindowOpen,
+      startingItemSelection,
       settingsWindowOpen,
       toggleChartList,
       toggleEntrances,
       toggleOnlyProgressLocations,
+      toggleRandomSettingsWindow,
+      toggleStartingItemSelection,
       toggleSettingsWindow,
       toggleStartingItemMode,
       trackNonProgressCharts,
@@ -44,9 +48,15 @@ class Buttons extends React.PureComponent {
       trackNonProgressCharts
       || LogicHelper.anyProgressItemCharts()
     );
-
+    
+    const randomSettingsWindowText = randomSettingsWindowOpen
+      ? 'Close Random Settings Window'
+      : 'Open Random Settings Window';
+    const startingItemSelectionText = startingItemSelection
+      ? 'Disable Starting Item Selection'
+      : 'Enable Starting Item Selection';
     return (
-      <div className="buttons">
+      <div className={`buttons ${startingItemSelection ? 'darken-background-z-index' : ''}`}>
         <button
           onClick={toggleOnlyProgressLocations}
           type="button"
@@ -113,6 +123,19 @@ class Buttons extends React.PureComponent {
         >
           {settingsWindowText}
         </button>
+        <button
+          onClick={toggleRandomSettingsWindow}
+          type="button"
+        >
+          {randomSettingsWindowText}
+        </button>
+        <button
+          onClick={toggleStartingItemSelection}
+          type="button"
+        >
+          <input type="checkbox" className="button-checkbox" checked={startingItemSelection} readOnly />
+          {startingItemSelectionText}
+        </button>
       </div>
     );
   }
@@ -123,10 +146,14 @@ Buttons.propTypes = {
   isStartingItemMode: PropTypes.bool.isRequired,
   onlyProgressLocations: PropTypes.bool.isRequired,
   saveData: PropTypes.string.isRequired,
+  randomSettingsWindowOpen: PropTypes.bool.isRequired,
+  startingItemSelection: PropTypes.bool.isRequired,
   settingsWindowOpen: PropTypes.bool.isRequired,
   toggleChartList: PropTypes.func.isRequired,
   toggleEntrances: PropTypes.func.isRequired,
   toggleOnlyProgressLocations: PropTypes.func.isRequired,
+  toggleRandomSettingsWindow: PropTypes.func.isRequired,
+  toggleStartingItemSelection: PropTypes.func.isRequired,
   toggleSettingsWindow: PropTypes.func.isRequired,
   toggleStartingItemMode: PropTypes.func.isRequired,
   trackNonProgressCharts: PropTypes.bool.isRequired,

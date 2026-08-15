@@ -2,6 +2,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
 
+import ChangedStartingItems from '../services/changed-starting-items';
 import LogicHelper from '../services/logic-helper';
 import Permalink from '../services/permalink';
 import Settings from '../services/settings';
@@ -11,6 +12,7 @@ import TrackerState from '../services/tracker-state';
 import Images from './images';
 import Item from './item';
 import SongNotes from './song-notes';
+import StartingItem from './starting-item'
 import Table from './table';
 
 class ItemsTable extends React.PureComponent {
@@ -33,17 +35,26 @@ class ItemsTable extends React.PureComponent {
 
   itemInfo() {
     const { selectedItem } = this.state;
-    const { trackerState } = this.props;
+    const { 
+      changedStartingItems,
+      startingItemSelection,
+      trackerState,
+    } = this.props;
 
     if (_.isNil(selectedItem)) {
       return null;
     }
 
-    const itemCount = trackerState.getItemValue(selectedItem);
+    let itemCount;
+    if (startingItemSelection) {
+      itemCount = changedStartingItems.getItemCount(selectedItem);
+    } else {
+      itemCount = trackerState.getItemValue(selectedItem);
+    }
     const itemInfoText = LogicHelper.prettyNameForItem(selectedItem, itemCount);
 
     return (
-      <span className="item-info">
+      <span className={`item-info ${startingItemSelection ? 'starting-selection-info' : ''}`}>
         {itemInfoText}
       </span>
     );
@@ -55,10 +66,16 @@ class ItemsTable extends React.PureComponent {
       incrementItem,
       isStartingItemMode,
       spheres,
+      startingItemSelection,
       trackSpheres,
       trackerState,
       updateStartingItemCount,
     } = this.props;
+
+    // Implementation like this so we don't have to rewire all elements
+    if (startingItemSelection) {
+      return this.startingItem(itemName);
+    }
 
     const itemCount = trackerState.getItemValue(itemName);
     const hasSelectedStartingItem = trackerState.hasSelectedStartingItem(itemName);
@@ -83,6 +100,29 @@ class ItemsTable extends React.PureComponent {
         setSelectedItem={this.setSelectedItem}
         spheres={spheres}
         updateStartingItemCount={updateStartingItemCount}
+      />
+    );
+  }
+
+  startingItem(itemName) {
+    const {
+      decrementStartingItem,
+      incrementStartingItem,
+      changedStartingItems,
+    } = this.props;
+
+    const itemCount = changedStartingItems.getItemCount(itemName);
+    const itemImages = _.get(Images.IMAGES, ['ITEMS', itemName]);
+
+    return (
+      <StartingItem
+        clearSelectedItem={this.clearSelectedItem}
+        decrementStartingItem={decrementStartingItem}
+        images={itemImages}
+        incrementStartingItem={incrementStartingItem}
+        itemCount={itemCount}
+        itemName={itemName}
+        setSelectedItem={this.setSelectedItem}
       />
     );
   }
@@ -153,10 +193,10 @@ class ItemsTable extends React.PureComponent {
   }
 
   render() {
-    const { backgroundColor } = this.props;
+    const { backgroundColor, startingItemSelection } = this.props;
 
     return (
-      <div className={`item-tracker ${backgroundColor ? 'single-color' : ''}`}>
+      <div className={`item-tracker ${backgroundColor ? 'single-color' : ''} ${startingItemSelection ? 'darken-background-z-index' : ''}`}>
         <div
           className="item-tracker-background"
           style={{ backgroundColor }}
@@ -249,6 +289,11 @@ class ItemsTable extends React.PureComponent {
             </div>
           </div>
         </div>
+        {startingItemSelection && (
+          <span className="starting-selection-info">
+            STARTING ITEM SELECTION MODE
+          </span>
+        )}
         {this.itemInfo()}
       </div>
     );
@@ -261,10 +306,14 @@ ItemsTable.defaultProps = {
 
 ItemsTable.propTypes = {
   backgroundColor: PropTypes.string,
+  changedStartingItems: PropTypes.instanceOf(ChangedStartingItems).isRequired,
   decrementItem: PropTypes.func.isRequired,
+  decrementStartingItem: PropTypes.func.isRequired,
   incrementItem: PropTypes.func.isRequired,
+  incrementStartingItem: PropTypes.func.isRequired,
   isStartingItemMode: PropTypes.bool.isRequired,
   spheres: PropTypes.instanceOf(Spheres).isRequired,
+  startingItemSelection: PropTypes.bool.isRequired,
   trackNonProgressBlueChuJelly: PropTypes.bool.isRequired,
   trackSpheres: PropTypes.bool.isRequired,
   trackerState: PropTypes.instanceOf(TrackerState).isRequired,
