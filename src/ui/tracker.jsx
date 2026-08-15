@@ -4,13 +4,17 @@ import React from 'react';
 import { Oval } from 'react-loader-spinner';
 import { ToastContainer, toast } from 'react-toastify';
 
+import ChangedStartingItems from '../services/changed-starting-items';
 import LogicHelper from '../services/logic-helper';
+import Settings from '../services/settings';
+import Spheres from '../services/spheres';
 import TrackerController from '../services/tracker-controller';
 
 import Buttons from './buttons';
 import Images from './images';
 import ItemsTable from './items-table';
 import LocationsTable from './locations-table';
+import RandomSettingsWindow from './random-settings-window';
 import SettingsWindow from './settings-window';
 import SphereTracking from './sphere-tracking';
 import Statistics from './statistics';
@@ -24,6 +28,7 @@ class Tracker extends React.PureComponent {
 
     this.state = {
       chartListOpen: false,
+      changedStartingItems: ChangedStartingItems.initialize(),
       clearAllIncludesMail: true,
       settingsWindowOpen: false,
       colors: {
@@ -43,6 +48,8 @@ class Tracker extends React.PureComponent {
       openedExit: null,
       openedLocation: null,
       openedLocationIsDungeon: null,
+      randomSettingsWindowOpen: false,
+      startingItemSelection: false,
       rightClickToClearAll: true,
       settingsWindowPosition: {
         x: 20,
@@ -63,11 +70,15 @@ class Tracker extends React.PureComponent {
     this.clearOpenedMenus = this.clearOpenedMenus.bind(this);
     this.decrementItem = this.decrementItem.bind(this);
     this.disableStartingItemMode = this.disableStartingItemMode.bind(this);
+    this.decrementStartingItem = this.decrementStartingItem.bind(this);
     this.incrementItem = this.incrementItem.bind(this);
+    this.incrementStartingItem = this.incrementStartingItem.bind(this);
     this.toggleChartList = this.toggleChartList.bind(this);
     this.toggleEntrances = this.toggleEntrances.bind(this);
     this.toggleLocationChecked = this.toggleLocationChecked.bind(this);
     this.toggleOnlyProgressLocations = this.toggleOnlyProgressLocations.bind(this);
+    this.toggleRandomSettingsWindow = this.toggleRandomSettingsWindow.bind(this);
+    this.toggleStartingItemSelection = this.toggleStartingItemSelection.bind(this);
     this.toggleRequiredBoss = this.toggleRequiredBoss.bind(this);
     this.toggleSettingsWindow = this.toggleSettingsWindow.bind(this);
     this.updateStartingItemCount = this.updateStartingItemCount.bind(this);
@@ -79,6 +90,7 @@ class Tracker extends React.PureComponent {
     this.updateChartMapping = this.updateChartMapping.bind(this);
     this.updateExitForEntrance = this.updateExitForEntrance.bind(this);
     this.updateOpenedChartForIsland = this.updateOpenedChartForIsland.bind(this);
+    this.updateLogic = this.updateLogic.bind(this);
     this.updateOpenedEntrance = this.updateOpenedEntrance.bind(this);
     this.updateOpenedExit = this.updateOpenedExit.bind(this);
     this.updateOpenedLocation = this.updateOpenedLocation.bind(this);
@@ -168,6 +180,15 @@ class Tracker extends React.PureComponent {
     this.updateTrackerState(newTrackerState);
   }
 
+  incrementStartingItem(itemName) {
+    const { changedStartingItems } = this.state;
+
+    const newChangedStartingItems = changedStartingItems
+      .incrementStartingItem(itemName);
+
+    this.setState({ changedStartingItems: newChangedStartingItems });
+  }
+
   decrementItem(itemName) {
     const {
       enableItemCycling,
@@ -197,6 +218,15 @@ class Tracker extends React.PureComponent {
     this.setState({
       isStartingItemMode: false,
     });
+  }
+
+  decrementStartingItem(itemName) {
+    const { changedStartingItems } = this.state;
+
+    const newChangedStartingItems = changedStartingItems
+      .decrementStartingItem(itemName);
+
+    this.setState({ changedStartingItems: newChangedStartingItems });
   }
 
   toggleLocationChecked(generalLocation, detailedLocation) {
@@ -433,8 +463,53 @@ class Tracker extends React.PureComponent {
     this.updatePreferences({ viewingEntrances: !viewingEntrances });
   }
 
+  toggleRandomSettingsWindow() {
+    const { randomSettingsWindowOpen } = this.state;
+
+    this.setState({
+      randomSettingsWindowOpen: !randomSettingsWindowOpen,
+    });
+  }
+
+  async toggleStartingItemSelection() {
+    const { changedStartingItems, startingItemSelection, trackerState } = this.state;
+
+    const {
+      newChangedStartingItems,
+      newOptions,
+      newTrackerState,
+    } = changedStartingItems.applyChangedStartingItems(trackerState);
+
+    this.setState({
+      changedStartingItems: newChangedStartingItems,
+      startingItemSelection: !startingItemSelection,
+      trackerState: newTrackerState,
+    });
+
+    await this.updateLogic({ newOptions });
+  }
+
   unsetLastLocation() {
     this.setState({ lastLocation: null });
+  }
+
+  async updateLogic(options = {}) {
+    const { newCertainSettings, newOptions } = options;
+    const { trackerState } = this.state;
+    const savedRequiredBosses = LogicHelper.nonRequiredBossDungeons;
+
+    if (newOptions) {
+      Settings.updateOptions(newOptions);
+    }
+    if (newCertainSettings) {
+      Settings.updateCertainSettings(newCertainSettings);
+    }
+    await TrackerController.refreshLogic();
+    LogicHelper.nonRequiredBossDungeons = savedRequiredBosses;
+
+    const { logic: newLogic } = TrackerController.refreshState(trackerState);
+
+    this.setState({ logic: newLogic, spheres: new Spheres(trackerState) });
   }
 
   toggleStartingItemMode() {
@@ -494,6 +569,7 @@ class Tracker extends React.PureComponent {
 
   render() {
     const {
+      changedStartingItems,
       chartListOpen,
       clearAllIncludesMail,
       colors,
@@ -511,7 +587,9 @@ class Tracker extends React.PureComponent {
       openedLocationIsDungeon,
       rightClickToClearAll,
       saveData,
+      randomSettingsWindowOpen,
       settingsWindowOpen,
+      startingItemSelection,
       settingsWindowPosition,
       spheres,
       showBeedleLocations,
@@ -544,12 +622,17 @@ class Tracker extends React.PureComponent {
       content = (
         <div className="tracker-container">
           <div className="tracker">
+            {startingItemSelection && <div className="darken-background" />}
             <ItemsTable
               backgroundColor={itemsTableBackground}
+              changedStartingItems={changedStartingItems}
               decrementItem={this.decrementItem}
+              decrementStartingItem={this.decrementStartingItem}
               disableStartingItemMode={this.disableStartingItemMode}
               enableItemCycling={enableItemCycling}
               incrementItem={this.incrementItem}
+              incrementStartingItem={this.incrementStartingItem}
+              startingItemSelection={startingItemSelection}
               isStartingItemMode={isStartingItemMode}
               spheres={spheres}
               trackNonProgressBlueChuJelly={trackNonProgressBlueChuJelly}
@@ -634,18 +717,29 @@ class Tracker extends React.PureComponent {
               updateSettingsWindowPosition={this.updateSettingsWindowPosition}
             />
           )}
+          {randomSettingsWindowOpen && (
+            <RandomSettingsWindow
+              toggleRandomSettingsWindow={this.toggleRandomSettingsWindow}
+              updateLogic={this.updateLogic}
+            />
+          )}
           <Buttons
             chartListOpen={chartListOpen}
             isStartingItemMode={isStartingItemMode}
             onlyProgressLocations={onlyProgressLocations}
             saveData={saveData}
+            randomSettingsWindowOpen={randomSettingsWindowOpen}
+            startingItemSelection={startingItemSelection}
             settingsWindowOpen={settingsWindowOpen}
             toggleChartList={this.toggleChartList}
             toggleEntrances={this.toggleEntrances}
             toggleOnlyProgressLocations={this.toggleOnlyProgressLocations}
+            toggleRandomSettingsWindow={this.toggleRandomSettingsWindow}
+            toggleStartingItemSelection={this.toggleStartingItemSelection}
             toggleSettingsWindow={this.toggleSettingsWindow}
             toggleStartingItemMode={this.toggleStartingItemMode}
             trackNonProgressCharts={trackNonProgressCharts}
+            trackSpheres={trackSpheres}
             viewingEntrances={viewingEntrances}
           />
         </div>
