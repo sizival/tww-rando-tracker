@@ -44,6 +44,8 @@ class LogicCalculation {
 
   static LOCATION_COLORS = {
     AVAILABLE_LOCATION: 'available-location',
+    CERTAIN_AVAILABLE_LOCATION: 'certain-available-location',
+    CERTAIN_UNAVAILABLE_LOCATION: 'certain-unavailable-location',
     CHECKED_LOCATION: 'checked-location',
     NON_PROGRESS_LOCATION: 'non-progress-location',
     UNAVAILABLE_LOCATION: 'unavailable-location',
@@ -73,6 +75,7 @@ class LogicCalculation {
 
     let anyProgress = false;
     let numAvailable = 0;
+    let numCertain = 0;
     let numRemaining = 0;
 
     _.forEach(detailedLocations, (detailedLocation) => {
@@ -83,16 +86,25 @@ class LogicCalculation {
           if (LogicHelper.isProgressLocation(generalLocation, detailedLocation)) {
             anyProgress = true;
           }
+          if (LogicHelper.isCertainLocationType(generalLocation, detailedLocation)) {
+            numCertain += 1;
+          }
         }
         numRemaining += 1;
       }
     });
 
-    const color = LogicCalculation.#locationCountsColor(numAvailable, numRemaining, anyProgress);
+    const color = LogicCalculation.#locationCountsColor(
+      numAvailable,
+      numRemaining,
+      anyProgress,
+      numCertain,
+    );
 
     return {
       color,
       numAvailable,
+      numCertain,
       numRemaining,
     };
   }
@@ -107,11 +119,13 @@ class LogicCalculation {
       const isAvailable = this.isLocationAvailable(generalLocation, detailedLocation);
       const isChecked = this.#state.isLocationChecked(generalLocation, detailedLocation);
       const isProgress = LogicHelper.isProgressLocation(generalLocation, detailedLocation);
+      const isCertain = LogicHelper.isCertainLocationType(generalLocation, detailedLocation);
 
       const color = LogicCalculation.#locationColor(
         disableLogic || isAvailable,
         isChecked,
         isProgress,
+        isCertain,
       );
 
       return {
@@ -695,7 +709,7 @@ class LogicCalculation {
     });
   }
 
-  static #locationCountsColor(numAvailable, numRemaining, anyProgress) {
+  static #locationCountsColor(numAvailable, numRemaining, anyProgress, numCertain) {
     if (numRemaining === 0) {
       return this.LOCATION_COLORS.CHECKED_LOCATION;
     }
@@ -703,19 +717,28 @@ class LogicCalculation {
       return this.LOCATION_COLORS.UNAVAILABLE_LOCATION;
     }
     if (anyProgress) {
+      if (numCertain > 0) {
+        return this.LOCATION_COLORS.CERTAIN_AVAILABLE_LOCATION;
+      }
       return this.LOCATION_COLORS.AVAILABLE_LOCATION;
     }
     return this.LOCATION_COLORS.NON_PROGRESS_LOCATION;
   }
 
-  static #locationColor(isAvailable, isChecked, isProgress) {
+  static #locationColor(isAvailable, isChecked, isProgress, isCertain) {
     if (isChecked) {
       return this.LOCATION_COLORS.CHECKED_LOCATION;
     }
     if (!isAvailable) {
+      if (isCertain) {
+        return this.LOCATION_COLORS.CERTAIN_UNAVAILABLE_LOCATION;
+      }
       return this.LOCATION_COLORS.UNAVAILABLE_LOCATION;
     }
     if (isProgress) {
+      if (isCertain) {
+        return this.LOCATION_COLORS.CERTAIN_AVAILABLE_LOCATION;
+      }
       return this.LOCATION_COLORS.AVAILABLE_LOCATION;
     }
     return this.LOCATION_COLORS.NON_PROGRESS_LOCATION;
