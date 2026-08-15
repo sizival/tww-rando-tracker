@@ -2314,6 +2314,20 @@ describe('LogicHelper', () => {
     });
   });
 
+  describe('locationTypeToSetting', () => {
+    test('returns correct settings', () => {
+      const settings = LogicHelper.locationTypeToSetting(`${Settings.FLAGS.GREAT_FAIRY}, ${Settings.FLAGS.SPOILS_TRADING}`);
+
+      expect(settings).toBe('Great Fairies, Spoils Trading');
+    });
+
+    test('returns settings with no duplicates', () => {
+      const settings = LogicHelper.locationTypeToSetting(`${Settings.FLAGS.RAFT}, ${Settings.FLAGS.PLATFORM}`);
+
+      expect(settings).toBe('Lookout Platforms and Rafts');
+    });
+  });
+
   describe('randomizedChartForIsland', () => {
     test('returns randomized chart for island name', () => {
       expect(LogicHelper.randomizedChartForIsland('Outset Island')).toBe('Chart for Outset Island');
@@ -3942,6 +3956,20 @@ describe('LogicHelper', () => {
       const bannedLocationsForZone = LogicHelper.bannedLocationsForZone('Outset Island', { includeAdditionalLocations: false });
 
       expect(bannedLocationsForZone).toMatchSnapshot();
+    });
+  });
+
+  describe('isLockedStartingItem', () => {
+    test("returns true for wind's requiem", () => {
+      expect(LogicHelper.isLockedStartingItem("Wind's Requiem")).toBe(true);
+    });
+
+    test("returns true for Boat's sail", () => {
+      expect(LogicHelper.isLockedStartingItem("Boat's Sail")).toBe(true);
+    });
+
+    test('returns true for wind waker', () => {
+      expect(LogicHelper.isLockedStartingItem('Wind Waker')).toBe(true);
     });
   });
 

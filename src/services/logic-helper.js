@@ -173,6 +173,33 @@ class LogicHelper {
 
   static HAS_ACCESSED_OTHER_LOCATION_REGEX = /Has Accessed Other Location "([^"]+)"/;
 
+  static SETTINGS_FOR_FLAGS = {
+    [Settings.FLAGS.DUNGEON]: 'Dungeons',
+    [Settings.FLAGS.DUNGEON_SECRETS]: 'Dungeon Secrets',
+    [Settings.FLAGS.GREAT_FAIRY]: 'Great Fairies',
+    [Settings.FLAGS.PUZZLE_SECRET_CAVE]: 'Puzzle Secret Caves',
+    [Settings.FLAGS.COMBAT_SECRET_CAVE]: 'Combat Secret Caves',
+    [Settings.FLAGS.SHORT_SIDEQUEST]: 'Short Sidequests',
+    [Settings.FLAGS.LONG_SIDEQUEST]: 'Long Sidequests',
+    [Settings.FLAGS.SPOILS_TRADING]: 'Spoils Trading',
+    [Settings.FLAGS.MINIGAME]: 'Minigames',
+    [Settings.FLAGS.FREE_GIFT]: 'Free Gifts',
+    [Settings.FLAGS.MAIL]: 'Mail',
+    [Settings.FLAGS.PLATFORM]: 'Lookout Platforms and Rafts',
+    [Settings.FLAGS.RAFT]: 'Lookout Platforms and Rafts',
+    [Settings.FLAGS.SUBMARINE]: 'Submarines',
+    [Settings.FLAGS.EYE_REEF_CHEST]: 'Eye Reef Chests',
+    [Settings.FLAGS.BIG_OCTO]: 'Big Octos and Gunboats',
+    [Settings.FLAGS.GUNBOAT]: 'Big Octos and Gunboats',
+    [Settings.FLAGS.EXPENSIVE_PURCHASE]: 'Expensive Purchases',
+    [Settings.FLAGS.OTHER_CHEST]: 'Miscellaneous',
+    [Settings.FLAGS.MISC]: 'Miscellaneous',
+    [Settings.FLAGS.TINGLE_CHEST]: 'Tingle Chests',
+    [Settings.FLAGS.BATTLESQUID]: 'Battlesquid Minigame',
+    [Settings.FLAGS.SAVAGE_LABYRINTH]: 'Savage Labyrinth',
+    [Settings.FLAGS.ISLAND_PUZZLE]: 'Island Puzzles',
+  };
+
   static startingItemCount(item) {
     return _.get(this.startingItems, item, 0);
   }
@@ -361,6 +388,41 @@ class LogicHelper {
     }
 
     return null;
+  }
+
+  static isCertainLocationType(generalLocation, detailedLocation) {
+    const locationTypes = Locations.getLocation(
+      generalLocation,
+      detailedLocation,
+      Locations.KEYS.TYPES,
+    );
+
+    if (!locationTypes) {
+      // the Defeat Ganondorf location does not have any types
+      return true;
+    }
+
+    const locationTypesList = _.split(locationTypes, ', ');
+    return _.every(
+      locationTypesList,
+      (flag) => Settings.isCertainFlagActive(flag),
+    );
+  }
+
+  static locationTypeToSetting(locationType) {
+    const types = locationType.split(',').map((type) => type.trim());
+    const settings = [];
+    types.forEach((type) => {
+      const setting = _.get(this.SETTINGS_FOR_FLAGS, type, type);
+
+      if (settings.includes(setting)) {
+        return;
+      }
+
+      settings.push(setting);
+    });
+
+    return settings.join(', ');
   }
 
   static isProgressLocation(generalLocation, detailedLocation) {
@@ -817,6 +879,12 @@ class LogicHelper {
       Locations.KEYS.NEED,
     );
     return this.#booleanExpressionForRequirements(requirements, isFlattened);
+  }
+
+  static isLockedStartingItem(itemName) {
+    return itemName === LogicHelper.ITEMS.WINDS_REQUIEM
+    || itemName === LogicHelper.ITEMS.BOATS_SAIL
+    || itemName === LogicHelper.ITEMS.WIND_WAKER;
   }
 
   static #prettyNameOverride(itemName, itemCount = 1) {
