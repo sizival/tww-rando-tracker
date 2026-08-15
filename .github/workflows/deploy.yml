@@ -1,0 +1,139 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [rs-wwrando-dev-tanjo3]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout rs-wwrando-dev-tanjo3
+        uses: actions/checkout@v4
+        with:
+          ref: rs-wwrando-dev-tanjo3
+          path: rs-wwrando-dev-tanjo3
+
+      - name: Checkout archipelago-autotrack
+        uses: actions/checkout@v4
+        with:
+          ref: archipelago-autotrack
+          path: archipelago-autotrack
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: |
+            rs-wwrando-dev-tanjo3/package-lock.json
+            archipelago-autotrack/package-lock.json
+
+      # --- active branch: fully gated, failures stop the deploy ---
+
+      - name: Install dependencies (rs-wwrando-dev-tanjo3)
+        working-directory: rs-wwrando-dev-tanjo3
+        run: npm ci
+
+      - name: Run eslint
+        working-directory: rs-wwrando-dev-tanjo3
+        run: npm run lint
+
+      - name: Run tests
+        working-directory: rs-wwrando-dev-tanjo3
+        run: npm test
+
+      - name: Build rs-wwrando-dev-tanjo3
+        working-directory: rs-wwrando-dev-tanjo3
+        run: npm run build:production
+
+      # --- archipelago-autotrack: best effort, never blocks the active branch ---
+
+      - name: Install dependencies (archipelago-autotrack)
+        id: ap_install
+        continue-on-error: true
+        working-directory: archipelago-autotrack
+        run: npm ci
+
+      - name: Build archipelago-autotrack
+        id: ap_build
+        continue-on-error: true
+        if: steps.ap_install.outcome == 'success'
+        working-directory: archipelago-autotrack
+        run: npm run build:production
+
+      # --- assemble the site ---
+
+      - name: Assemble site
+        run: |
+          set -e
+          mkdir -p site
+          cp -r rs-wwrando-dev-tanjo3/dist site/rs-wwrando-dev-tanjo3
+          if [ -d archipelago-autotrack/dist ]; then
+            cp -r archipelago-autotrack/dist site/archipelago-autotrack
+            echo "AP_STATUS=ok" >> "$GITHUB_ENV"
+          else
+            echo "::warning::archipelago-autotrack failed to build; its subpath is omitted from this deploy."
+            echo "AP_STATUS=failed" >> "$GITHUB_ENV"
+          fi
+
+      - name: Write root index
+        run: |
+          set -e
+          if [ "$AP_STATUS" = "ok" ]; then
+            AP_LINK='<li><a href="./archipelago-autotrack/">archipelago-autotrack</a></li>'
+          else
+            AP_LINK='<li>archipelago-autotrack &mdash; build failed on this deploy</li>'
+          fi
+          cat > site/index.html <<HTML
+          <!doctype html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>TWW Rando Tracker builds</title>
+            <style>
+              body { font-family: system-ui, sans-serif; max-width: 34rem;
+                     margin: 4rem auto; padding: 0 1.5rem; line-height: 1.6; }
+              h1 { font-size: 1.4rem; }
+              li { margin-bottom: .5rem; }
+              footer { margin-top: 2rem; font-size: .85rem; color: #666; }
+            </style>
+          </head>
+          <body>
+            <h1>TWW Rando Tracker &mdash; branch builds</h1>
+            <ul>
+              <li><a href="./rs-wwrando-dev-tanjo3/">rs-wwrando-dev-tanjo3</a> (active)</li>
+              $AP_LINK
+            </ul>
+            <footer>Deployed from ${GITHUB_SHA:0:7} on $(date -u '+%Y-%m-%d %H:%M UTC').</footer>
+          </body>
+          </html>
+          HTML
+
+      # --- publish ---
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
