@@ -7,7 +7,6 @@ import { ToastContainer, toast } from 'react-toastify';
 import ChangedStartingItems from '../services/changed-starting-items';
 import LogicHelper from '../services/logic-helper';
 import Settings from '../services/settings';
-import Spheres from '../services/spheres';
 import TrackerController from '../services/tracker-controller';
 
 import Buttons from './buttons';
@@ -497,6 +496,7 @@ class Tracker extends React.PureComponent {
     const { newCertainSettings, newOptions } = options;
     const { trackerState } = this.state;
     const savedRequiredBosses = LogicHelper.nonRequiredBossDungeons;
+    const previousStartingItems = _.clone(LogicHelper.startingItems);
 
     if (newOptions) {
       Settings.updateOptions(newOptions);
@@ -507,9 +507,22 @@ class Tracker extends React.PureComponent {
     await TrackerController.refreshLogic();
     LogicHelper.nonRequiredBossDungeons = savedRequiredBosses;
 
-    const { logic: newLogic } = TrackerController.refreshState(trackerState);
+    const newTrackerState = trackerState.reconcileStartingItems(previousStartingItems);
 
-    this.setState({ logic: newLogic, spheres: new Spheres(trackerState) });
+    const {
+      logic,
+      saveData,
+      spheres,
+    } = TrackerController.refreshState(newTrackerState);
+
+    Storage.saveToStorage(saveData);
+
+    this.setState({
+      logic,
+      saveData,
+      spheres,
+      trackerState: newTrackerState,
+    });
   }
 
   toggleStartingItemMode() {

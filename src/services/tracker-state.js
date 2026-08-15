@@ -92,6 +92,41 @@ class TrackerState {
     return _.set(this.items, itemName, value);
   }
 
+  cloneWithItems() {
+    return this.#clone({ items: true });
+  }
+
+  /**
+   * Reapplies starting item counts after the logic has been reloaded with
+   * different settings. Whatever was found on top of the old starting count is
+   * kept, and the starting portion is rebased onto the new count.
+   *
+   * @param {object} previousStartingItems The starting item counts from before
+   *   the logic was reloaded.
+   * @returns {TrackerState} The state with reconciled item counts.
+   */
+  reconcileStartingItems(previousStartingItems) {
+    const newState = this.#clone({ items: true });
+
+    _.forEach(LogicHelper.ALL_ITEMS, (itemName) => {
+      const previousStartingCount = _.get(previousStartingItems, itemName, 0);
+      const newStartingCount = LogicHelper.startingItemCount(itemName);
+      const currentCount = newState.getItemValue(itemName);
+
+      const foundCount = _.isNil(currentCount)
+        ? 0
+        : Math.max(currentCount - previousStartingCount, 0);
+
+      _.set(
+        newState.items,
+        itemName,
+        Math.min(newStartingCount + foundCount, LogicHelper.maxItemCount(itemName)),
+      );
+    });
+
+    return newState;
+  }
+
   incrementItem(itemName, enableItemCycling) {
     const newState = this.#clone({ items: true });
 
@@ -340,10 +375,6 @@ class TrackerState {
       : this.selectedStartingItems;
 
     return newState;
-  }
-
-  cloneWithItems() {
-    return this.#clone({ items: true })
   }
 
   #toggleLocationCheckedUpdate(generalLocation, detailedLocation) {

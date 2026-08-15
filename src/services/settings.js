@@ -23,10 +23,10 @@ class Settings {
     this.excludedLocations = this.getOptionValue(Permalink.OPTIONS.EXCLUDED_LOCATIONS);
     _.unset(this.options, Permalink.OPTIONS.EXCLUDED_LOCATIONS);
 
-    this.flags = this.resolveFlags(this.options)
+    this.flags = this.resolveFlags(this.options);
 
-    this.certainSettings = {}
-    this.certainSettingsFlags = {}
+    this.certainSettings = {};
+    this.certainSettingsFlags = {};
   }
 
   static SETTING_STATE = {
@@ -36,8 +36,8 @@ class Settings {
   };
 
   static initializeRaw(settings) {
-    this.certainSettings = settings.certainSettings
-    this.certainSettingsFlags = this.certainSettingsFlags
+    this.certainSettings = settings.certainSettings;
+    this.certainSettingsFlags = settings.certainSettingsFlags;
     this.flags = settings.flags;
     this.options = settings.options;
     this.startingGear = settings.startingGear;
@@ -64,7 +64,7 @@ class Settings {
       startingGear: this.startingGear,
       excludedLocations: this.excludedLocations,
       version: this.version,
-      certainSettings : this.certainSettings,
+      certainSettings: this.certainSettings,
       certainSettingsFlags: this.certainSettingsFlags,
     };
   }
@@ -100,12 +100,12 @@ class Settings {
   static getStartingGear() {
     return this.startingGear;
   }
-  
+
   static updateStartingGear(newStartingGear) {
     this.startingGear = newStartingGear;
     this.setOptionValue(Permalink.OPTIONS.STARTING_GEAR, newStartingGear);
   }
-  
+
   static getVersion() {
     return this.version;
   }
@@ -121,7 +121,7 @@ class Settings {
     return isLocationExcluded;
   }
 
-    static isCertainFlagActive(flag) {
+  static isCertainFlagActive(flag) {
     return _.includes(this.certainSettingsFlags, flag);
   }
 
@@ -133,8 +133,19 @@ class Settings {
 
   static updateOptions(newOptions) {
     this.options = newOptions;
-    this.startingGear = this.getOptionValue(Permalink.OPTIONS.STARTING_GEAR);
-    this.flags = this.resolveFlags(newOptions);
+
+    // Starting gear and excluded locations are held outside of `options`, so only
+    // overwrite them when the incoming options actually carry a replacement.
+    this.startingGear = _.get(newOptions, Permalink.OPTIONS.STARTING_GEAR, this.startingGear);
+    this.excludedLocations = _.get(
+      newOptions,
+      Permalink.OPTIONS.EXCLUDED_LOCATIONS,
+      this.excludedLocations,
+    );
+    _.unset(this.options, Permalink.OPTIONS.STARTING_GEAR);
+    _.unset(this.options, Permalink.OPTIONS.EXCLUDED_LOCATIONS);
+
+    this.flags = this.resolveFlags(this.options);
   }
 
   static resolveFlags(options) {
