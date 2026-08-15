@@ -88,6 +88,10 @@ class TrackerState {
     return newState;
   }
 
+  setItemValue(itemName, value) {
+    return _.set(this.items, itemName, value);
+  }
+
   incrementItem(itemName, enableItemCycling) {
     const newState = this.#clone({ items: true });
 
