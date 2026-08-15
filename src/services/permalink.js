@@ -36,7 +36,7 @@ class Permalink {
   };
 
   // Start with mixed pool max rando
-  static DEFAULT_PERMALINK = 'eJxLSS2LL0nMy8o31jPUMzTQM9czjk8xNkgxMk9mcC9KTU2p9E0syk5NCS5JzEnLL2b4//8/OwNlYIHvkkQGNqYP6g1XZ/xkAQsxQqUcYGp4OADIPhjc';
+  static DEFAULT_PERMALINK = 'eJxLSS2LL0nMy8o31jPUMzTQM9czjk8xNkgxMk9mcC9KTU2p9E0syk5NCS5JzEnLL2b4//8/OwNlYIHvkkQGNqYP6Q1XZ/xkAQsxQqUcYGp4OADPvhkc';
 
   static getVersion(binaryString) {
     const clonedString = binaryString.clone();

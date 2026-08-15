@@ -139,7 +139,7 @@ class Settings {
 
   static resolveFlags(options) {
     let flags = [];
-    _.forEach(this._FLAGS_MAPPING, (flagsForOption, optionName) => {
+    _.forEach(this.#FLAGS_MAPPING, (flagsForOption, optionName) => {
       if (_.get(options, optionName)) {
         flags = _.concat(flags, flagsForOption);
       }
