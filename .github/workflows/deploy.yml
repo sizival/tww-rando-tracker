@@ -1,8 +1,9 @@
 name: Deploy to GitHub Pages
 
+# Deployment is handled by .github/workflows/deploy.yml on rs-wwrando-dev-tanjo3,
+# which builds this branch and publishes it at /archipelago-autotrack/.
+# Manual runs here replace the entire Pages site until the active branch redeploys.
 on:
-  push:
-    branches: [archipelago-autotrack]
   workflow_dispatch:
 
 permissions:
