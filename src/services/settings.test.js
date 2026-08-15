@@ -19,7 +19,7 @@ describe('Settings', () => {
         BinaryString.fromBase64(Permalink.DEFAULT_PERMALINK),
       );
 
-      expect(Settings.version).toEqual('46f8e01');
+      expect(Settings.version).toEqual('d30d27c');
     });
   });
 
@@ -80,7 +80,8 @@ describe('Settings', () => {
           Settings.FLAGS.RUPEE_OVERWORLD,
           Settings.FLAGS.BLUE_CHU_CHU,
           Settings.FLAGS.ORCA_MINIGAME,
-          Settings.FLAGS.SUNKEN_TREASURE, // duplicate required because PROGRESSION_TRIFORCE_CHARTS are on
+          // duplicated because PROGRESSION_TRIFORCE_CHARTS is also on
+          Settings.FLAGS.SUNKEN_TREASURE,
         ]);
       });
     });
@@ -351,6 +352,85 @@ describe('Settings', () => {
       const version = Settings.getVersion();
 
       expect(version).toEqual('1.0.0');
+    });
+  });
+
+  describe('updateOptions', () => {
+    beforeEach(() => {
+      Settings.initializeRaw({
+        excludedLocations: { 'Outset Island': { "Underneath Link's House": true } },
+        options: {
+          [Permalink.OPTIONS.PROGRESSION_DUNGEONS]: true,
+        },
+        startingGear: { 'Deku Leaf': 1 },
+      });
+    });
+
+    test('replaces the options and recalculates the flags', () => {
+      Settings.updateOptions({
+        [Permalink.OPTIONS.PROGRESSION_GREAT_FAIRIES]: true,
+      });
+
+      expect(Settings.getOptions()).toEqual({
+        [Permalink.OPTIONS.PROGRESSION_GREAT_FAIRIES]: true,
+      });
+      expect(Settings.flags).toEqual([Settings.FLAGS.GREAT_FAIRY]);
+    });
+
+    test('keeps the starting gear when the new options do not include it', () => {
+      Settings.updateOptions({
+        [Permalink.OPTIONS.PROGRESSION_DUNGEONS]: true,
+      });
+
+      expect(Settings.getStartingGear()).toEqual({ 'Deku Leaf': 1 });
+    });
+
+    test('keeps the excluded locations when the new options do not include them', () => {
+      Settings.updateOptions({
+        [Permalink.OPTIONS.PROGRESSION_DUNGEONS]: true,
+      });
+
+      expect(Settings.excludedLocations).toEqual({
+        'Outset Island': { "Underneath Link's House": true },
+      });
+    });
+
+    test('takes the starting gear from the new options when it is included', () => {
+      Settings.updateOptions({
+        [Permalink.OPTIONS.PROGRESSION_DUNGEONS]: true,
+        [Permalink.OPTIONS.STARTING_GEAR]: { Hookshot: 1 },
+      });
+
+      expect(Settings.getStartingGear()).toEqual({ Hookshot: 1 });
+    });
+
+    test('removes the starting gear from the stored options', () => {
+      Settings.updateOptions({
+        [Permalink.OPTIONS.PROGRESSION_DUNGEONS]: true,
+        [Permalink.OPTIONS.STARTING_GEAR]: { Hookshot: 1 },
+      });
+
+      expect(Settings.getOptions()).toEqual({
+        [Permalink.OPTIONS.PROGRESSION_DUNGEONS]: true,
+      });
+    });
+  });
+
+  describe('updateCertainSettings', () => {
+    beforeEach(() => {
+      Settings.initializeRaw({});
+    });
+
+    test('stores the certain settings and resolves their flags', () => {
+      Settings.updateCertainSettings({
+        [Permalink.OPTIONS.PROGRESSION_GREAT_FAIRIES]: true,
+      });
+
+      expect(Settings.certainSettings).toEqual({
+        [Permalink.OPTIONS.PROGRESSION_GREAT_FAIRIES]: true,
+      });
+      expect(Settings.isCertainFlagActive(Settings.FLAGS.GREAT_FAIRY)).toBe(true);
+      expect(Settings.isCertainFlagActive(Settings.FLAGS.DUNGEON)).toBe(false);
     });
   });
 });

@@ -263,6 +263,86 @@ describe('TrackerState', () => {
     });
   });
 
+  describe('reconcileStartingItems', () => {
+    let state;
+    let allItems;
+
+    beforeEach(() => {
+      state = TrackerState.default();
+
+      allItems = LogicHelper.ALL_ITEMS;
+      LogicHelper.ALL_ITEMS = ['Triforce Shard', 'Progressive Quiver'];
+      LogicHelper.startingItems = {
+        'Triforce Shard': 1,
+      };
+    });
+
+    afterEach(() => {
+      LogicHelper.ALL_ITEMS = allItems;
+      LogicHelper.startingItems = {};
+    });
+
+    test('follows the new starting count when nothing extra was found', () => {
+      state.items = { 'Triforce Shard': 2, 'Progressive Quiver': 0 };
+
+      const newState = state.reconcileStartingItems({ 'Triforce Shard': 2 });
+
+      expect(newState.getItemValue('Triforce Shard')).toBe(1);
+    });
+
+    test('keeps found items when the starting count is lowered', () => {
+      state.items = { 'Triforce Shard': 4, 'Progressive Quiver': 0 };
+
+      const newState = state.reconcileStartingItems({ 'Triforce Shard': 2 });
+
+      expect(newState.getItemValue('Triforce Shard')).toBe(3);
+    });
+
+    test('keeps found items when the starting count is raised', () => {
+      state.items = { 'Triforce Shard': 3, 'Progressive Quiver': 0 };
+
+      LogicHelper.startingItems = { 'Triforce Shard': 5 };
+
+      const newState = state.reconcileStartingItems({ 'Triforce Shard': 2 });
+
+      expect(newState.getItemValue('Triforce Shard')).toBe(6);
+    });
+
+    test('does not exceed the maximum item count', () => {
+      state.items = { 'Triforce Shard': 8, 'Progressive Quiver': 0 };
+
+      LogicHelper.startingItems = { 'Triforce Shard': 7 };
+
+      const newState = state.reconcileStartingItems({ 'Triforce Shard': 2 });
+
+      expect(newState.getItemValue('Triforce Shard')).toBe(8);
+    });
+
+    test('seeds items that the state does not have yet', () => {
+      state.items = { 'Triforce Shard': 1 };
+
+      const newState = state.reconcileStartingItems({});
+
+      expect(newState.getItemValue('Progressive Quiver')).toBe(0);
+    });
+
+    test('leaves unrelated items alone', () => {
+      state.items = { 'Triforce Shard': 1, 'Progressive Quiver': 2 };
+
+      const newState = state.reconcileStartingItems({ 'Triforce Shard': 1 });
+
+      expect(newState.getItemValue('Progressive Quiver')).toBe(2);
+    });
+
+    test('does not modify the original state', () => {
+      state.items = { 'Triforce Shard': 4, 'Progressive Quiver': 0 };
+
+      state.reconcileStartingItems({ 'Triforce Shard': 2 });
+
+      expect(state.getItemValue('Triforce Shard')).toBe(4);
+    });
+  });
+
   describe('incrementItem', () => {
     let state;
 

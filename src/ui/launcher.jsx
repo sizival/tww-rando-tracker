@@ -15,6 +15,9 @@ import ToggleOptionInput from './toggle-option-input';
 import 'react-toastify/dist/ReactToastify.css';
 import 'react-toggle/style.css';
 
+const ATTRIBUTION = 'Maintained by wooferzfg • Random Settings changes by '
+  + 'Colfra, Natolumin, sizival • Original Tracker by BigDunka • ';
+
 export default class Launcher extends React.PureComponent {
   static notifyAboutUpdate() {
     const { serviceWorker } = navigator;
@@ -134,7 +137,6 @@ export default class Launcher extends React.PureComponent {
     );
   }
 
-
   constructor() {
     super();
 
@@ -243,6 +245,8 @@ export default class Launcher extends React.PureComponent {
     );
   }
 
+  // Kept for when random settings permalinks can be parsed; see commit dd7a816.
+  // eslint-disable-next-line react/no-unused-class-component-methods
   permalinkContainer() {
     const { permalink } = this.state;
 
@@ -573,7 +577,7 @@ export default class Launcher extends React.PureComponent {
             {this.launchButtonContainer()}
           </div>
           <div className="attribution">
-            <span>Maintained by wooferzfg • Random Settings changes by Colfra, Natolumin, sizival • Original Tracker by BigDunka • </span>
+            <span>{ATTRIBUTION}</span>
             <a href={`https://github.com/sizival/tww-rando-tracker/commit/${COMMIT_HASH}`} target="_blank" rel="noreferrer">
               Version:
               {' '}

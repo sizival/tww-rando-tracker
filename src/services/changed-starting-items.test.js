@@ -46,6 +46,7 @@ describe('ChangedStartingItems', () => {
         Settings.initializeRaw({
           options: {
             [Permalink.OPTIONS.NUM_STARTING_TRIFORCE_SHARDS]: 0,
+            [Permalink.OPTIONS.STARTING_BLUE_CHU_JELLY]: 0,
             [Permalink.OPTIONS.SWORD_MODE]: Permalink.SWORD_MODE_OPTIONS.NO_STARTING_SWORD,
           },
           startingGear: {
@@ -63,9 +64,11 @@ describe('ChangedStartingItems', () => {
 
       test('will update starting gear values', () => {
         expect(LogicHelper.startingItems).toEqual({
+          'Blue Chu Jelly': 0,
           "Boat's Sail": 1,
           'Progressive Shield': 1,
           'Progressive Sword': 0,
+          'Tingle Statue': 0,
           'Triforce Shard': 0,
           'Wind Waker': 1,
           "Wind's Requiem": 1,
@@ -87,9 +90,11 @@ describe('ChangedStartingItems', () => {
 
         expect(newChangedStartingItems.changedItems).toEqual({});
         expect(LogicHelper.startingItems).toEqual({
+          'Blue Chu Jelly': 0,
           "Boat's Sail": 1,
           'Progressive Shield': 2,
           'Progressive Sword': 1,
+          'Tingle Statue': 0,
           'Triforce Shard': 6,
           'Wind Waker': 1,
           "Wind's Requiem": 1,

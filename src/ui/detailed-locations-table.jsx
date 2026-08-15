@@ -44,7 +44,7 @@ class DetailedLocationsTable extends React.PureComponent {
       return null;
     }
 
-    const prettyItemName = !_isNil(itemForLocation)
+    const prettyItemName = !_.isNil(itemForLocation)
       ? LogicHelper.prettyNameForItem(itemForLocation, null)
       : null;
 

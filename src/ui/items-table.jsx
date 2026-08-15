@@ -12,7 +12,7 @@ import TrackerState from '../services/tracker-state';
 import Images from './images';
 import Item from './item';
 import SongNotes from './song-notes';
-import StartingItem from './starting-item'
+import StartingItem from './starting-item';
 import Table from './table';
 
 class ItemsTable extends React.PureComponent {
@@ -35,7 +35,7 @@ class ItemsTable extends React.PureComponent {
 
   itemInfo() {
     const { selectedItem } = this.state;
-    const { 
+    const {
       changedStartingItems,
       startingItemSelection,
       trackerState,

@@ -48,7 +48,7 @@ class Buttons extends React.PureComponent {
       trackNonProgressCharts
       || LogicHelper.anyProgressItemCharts()
     );
-    
+
     const randomSettingsWindowText = randomSettingsWindowOpen
       ? 'Close Random Settings Window'
       : 'Open Random Settings Window';

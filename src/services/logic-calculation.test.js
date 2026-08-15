@@ -814,7 +814,7 @@ describe('LogicCalculation', () => {
 
           expect(locationCounts).toEqual({
             numAvailable: 4,
-          numCertain: 0,
+            numCertain: 0,
             numRemaining: 4,
             color: LogicCalculation.LOCATION_COLORS.NON_PROGRESS_LOCATION,
           });
@@ -857,6 +857,56 @@ describe('LogicCalculation', () => {
             color: LogicCalculation.LOCATION_COLORS.AVAILABLE_LOCATION,
           });
         });
+      });
+    });
+  });
+
+  describe('certain location colors', () => {
+    beforeEach(() => {
+      fullSetup();
+
+      jest.spyOn(LogicHelper, 'isCertainLocationType').mockReturnValue(true);
+    });
+
+    afterEach(() => {
+      LogicHelper.isCertainLocationType.mockRestore();
+    });
+
+    test('counts certain locations and colors the group as certain', () => {
+      const locationCounts = logic.locationCounts('Dragon Roost Cavern', {
+        onlyProgressLocations: true,
+        disableLogic: false,
+      });
+
+      expect(locationCounts).toEqual({
+        numAvailable: 5,
+        numCertain: 5,
+        numRemaining: 15,
+        color: LogicCalculation.LOCATION_COLORS.CERTAIN_AVAILABLE_LOCATION,
+      });
+    });
+
+    test('marks available locations as certain', () => {
+      const locationsList = logic.locationsList('Windfall Island', {
+        onlyProgressLocations: true,
+        disableLogic: false,
+      });
+
+      expect(locationsList).not.toHaveLength(0);
+      _.forEach(locationsList, ({ color }) => {
+        expect(color).toBe(LogicCalculation.LOCATION_COLORS.CERTAIN_AVAILABLE_LOCATION);
+      });
+    });
+
+    test('marks unavailable locations as certain', () => {
+      const locationsList = logic.locationsList('Forsaken Fortress', {
+        onlyProgressLocations: true,
+        disableLogic: false,
+      });
+
+      expect(locationsList).not.toHaveLength(0);
+      _.forEach(locationsList, ({ color }) => {
+        expect(color).toBe(LogicCalculation.LOCATION_COLORS.CERTAIN_UNAVAILABLE_LOCATION);
       });
     });
   });

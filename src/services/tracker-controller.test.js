@@ -59,6 +59,29 @@ describe('TrackerController', () => {
     });
   });
 
+  describe('refreshLogic', () => {
+    beforeEach(async () => {
+      await TrackerController.initializeFromPermalink(Permalink.DEFAULT_PERMALINK);
+    });
+
+    test('reloads the locations and macros', async () => {
+      Locations.reset();
+      Macros.reset();
+
+      await TrackerController.refreshLogic();
+
+      validateLocationsAndMacros();
+    });
+
+    test('recalculates the starting items from the current settings', async () => {
+      Settings.setOptionValue(Permalink.OPTIONS.NUM_STARTING_TRIFORCE_SHARDS, 4);
+
+      await TrackerController.refreshLogic();
+
+      expect(LogicHelper.startingItemCount(LogicHelper.ITEMS.TRIFORCE_SHARD)).toBe(4);
+    });
+  });
+
   describe('initializeFromPermalink', () => {
     test('returns the correct initial data', async () => {
       const initialData = await TrackerController.initializeFromPermalink(
