@@ -23,22 +23,21 @@ class Settings {
     this.excludedLocations = this.getOptionValue(Permalink.OPTIONS.EXCLUDED_LOCATIONS);
     _.unset(this.options, Permalink.OPTIONS.EXCLUDED_LOCATIONS);
 
-    _.forEach(this.#FLAGS_MAPPING, (flagsForOption, optionName) => {
-      if (this.getOptionValue(optionName)) {
-        this.flags = _.concat(this.flags, flagsForOption);
-      }
-    });
+    this.flags = this.resolveFlags(this.options)
 
-    if (this.getOptionValue(Permalink.OPTIONS.PROGRESSION_TRIFORCE_CHARTS)) {
-      if (this.getOptionValue(Permalink.OPTIONS.RANDOMIZE_CHARTS)) {
-        this.flags.push(this.FLAGS.SUNKEN_TREASURE);
-      } else {
-        this.flags.push(this.FLAGS.SUNKEN_TRIFORCE);
-      }
-    }
+    this.certainSettings = {}
+    this.certainSettingsFlags = {}
   }
 
+  static SETTING_STATE = {
+    OFF: 0,
+    ON: 1,
+    CERTAIN: 2,
+  };
+
   static initializeRaw(settings) {
+    this.certainSettings = settings.certainSettings
+    this.certainSettingsFlags = this.certainSettingsFlags
     this.flags = settings.flags;
     this.options = settings.options;
     this.startingGear = settings.startingGear;
@@ -47,6 +46,8 @@ class Settings {
   }
 
   static reset() {
+    this.certainSettings = null;
+    this.certainSettingsFlags = null;
     this.flags = null;
     this.options = null;
     this.startingGear = null;
@@ -63,6 +64,8 @@ class Settings {
       startingGear: this.startingGear,
       excludedLocations: this.excludedLocations,
       version: this.version,
+      certainSettings : this.certainSettings,
+      certainSettingsFlags: this.certainSettingsFlags,
     };
   }
 
@@ -73,6 +76,10 @@ class Settings {
     }
 
     return _.includes(this.flags, flag);
+  }
+
+  static getOptions() {
+    return this.options;
   }
 
   static getOptionValue(optionName) {
@@ -86,10 +93,19 @@ class Settings {
     return optionValue;
   }
 
+  static setOptionValue(optionName, optionValue) {
+    _.set(this.options, optionName, optionValue);
+  }
+
   static getStartingGear() {
     return this.startingGear;
   }
-
+  
+  static updateStartingGear(newStartingGear) {
+    this.startingGear = newStartingGear;
+    this.setOptionValue(Permalink.OPTIONS.STARTING_GEAR, newStartingGear);
+  }
+  
   static getVersion() {
     return this.version;
   }
@@ -103,6 +119,41 @@ class Settings {
     }
 
     return isLocationExcluded;
+  }
+
+    static isCertainFlagActive(flag) {
+    return _.includes(this.certainSettingsFlags, flag);
+  }
+
+  static updateCertainSettings(newCertainSettings) {
+    this.certainSettings = newCertainSettings;
+
+    this.certainSettingsFlags = this.resolveFlags(this.certainSettings);
+  }
+
+  static updateOptions(newOptions) {
+    this.options = newOptions;
+    this.startingGear = this.getOptionValue(Permalink.OPTIONS.STARTING_GEAR);
+    this.flags = this.resolveFlags(newOptions);
+  }
+
+  static resolveFlags(options) {
+    let flags = [];
+    _.forEach(this._FLAGS_MAPPING, (flagsForOption, optionName) => {
+      if (_.get(options, optionName)) {
+        flags = _.concat(flags, flagsForOption);
+      }
+    });
+
+    if (_.get(options, Permalink.OPTIONS.PROGRESSION_TRIFORCE_CHARTS)) {
+      if (_.get(options, Permalink.OPTIONS.RANDOMIZE_CHARTS)) {
+        flags.push(this.FLAGS.SUNKEN_TREASURE);
+      } else {
+        flags.push(this.FLAGS.SUNKEN_TRIFORCE);
+      }
+    }
+
+    return flags;
   }
 
   static #FLAGS_MAPPING = {
