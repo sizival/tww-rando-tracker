@@ -738,7 +738,7 @@ class Tracker extends React.PureComponent {
           )}
           <Buttons
             chartListOpen={chartListOpen}
-            isStartingItemMode={isStartingItemMode}
+            /* isStartingItemMode={isStartingItemMode} */
             onlyProgressLocations={onlyProgressLocations}
             saveData={saveData}
             randomSettingsWindowOpen={randomSettingsWindowOpen}
@@ -750,7 +750,7 @@ class Tracker extends React.PureComponent {
             toggleRandomSettingsWindow={this.toggleRandomSettingsWindow}
             toggleStartingItemSelection={this.toggleStartingItemSelection}
             toggleSettingsWindow={this.toggleSettingsWindow}
-            toggleStartingItemMode={this.toggleStartingItemMode}
+            /* toggleStartingItemMode={this.toggleStartingItemMode} */
             trackNonProgressCharts={trackNonProgressCharts}
             trackSpheres={trackSpheres}
             viewingEntrances={viewingEntrances}

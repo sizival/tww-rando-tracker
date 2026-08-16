@@ -21,7 +21,7 @@ class Buttons extends React.PureComponent {
   render() {
     const {
       chartListOpen,
-      isStartingItemMode,
+      // isStartingItemMode, // Disabled: 'Edit Starting Items' button commented out below.
       onlyProgressLocations,
       randomSettingsWindowOpen,
       startingItemSelection,
@@ -32,7 +32,7 @@ class Buttons extends React.PureComponent {
       toggleRandomSettingsWindow,
       toggleStartingItemSelection,
       toggleSettingsWindow,
-      toggleStartingItemMode,
+      // toggleStartingItemMode, // Disabled: 'Edit Starting Items' button commented out below.
       trackNonProgressCharts,
       viewingEntrances,
     } = this.props;
@@ -98,6 +98,10 @@ class Buttons extends React.PureComponent {
             {chartListText}
           </button>
         )}
+        {/* Disabled: 'Edit Starting Items' button. To re-enable, uncomment this
+            block along with the isStartingItemMode/toggleStartingItemMode
+            destructured props and propTypes, and the matching props passed to
+            <Buttons /> in tracker.jsx.
         <button
           onClick={toggleStartingItemMode}
           type="button"
@@ -110,6 +114,7 @@ class Buttons extends React.PureComponent {
           />
           Edit Starting Items
         </button>
+        */}
         <br />
         <button
           onClick={this.exportProgress}
@@ -143,7 +148,7 @@ class Buttons extends React.PureComponent {
 
 Buttons.propTypes = {
   chartListOpen: PropTypes.bool.isRequired,
-  isStartingItemMode: PropTypes.bool.isRequired,
+  // isStartingItemMode: PropTypes.bool.isRequired,
   onlyProgressLocations: PropTypes.bool.isRequired,
   saveData: PropTypes.string.isRequired,
   randomSettingsWindowOpen: PropTypes.bool.isRequired,
@@ -155,7 +160,7 @@ Buttons.propTypes = {
   toggleRandomSettingsWindow: PropTypes.func.isRequired,
   toggleStartingItemSelection: PropTypes.func.isRequired,
   toggleSettingsWindow: PropTypes.func.isRequired,
-  toggleStartingItemMode: PropTypes.func.isRequired,
+  // toggleStartingItemMode: PropTypes.func.isRequired,
   trackNonProgressCharts: PropTypes.bool.isRequired,
   viewingEntrances: PropTypes.bool.isRequired,
 };
